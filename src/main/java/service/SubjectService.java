@@ -1,37 +1,50 @@
 package service;
 
-
+import com.example.practical_ead.dto.SubjectDTO;
 import entities.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reponsitories.SubjectRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 @Service
 public class SubjectService {
     @Autowired
     private SubjectRepository subjectRepository;
-    public List<Subject> getAll(){
-        return subjectRepository.findAll();
+
+    public List<SubjectDTO> getAllSubjects() {
+        List<Subject> subjects = subjectRepository.findAll();
+        List<SubjectDTO> subjectDTOs = new ArrayList<>();
+
+        for (Subject subject : subjects) {
+            SubjectDTO subjectDTO = new SubjectDTO();
+            subjectDTO.setSubjectId(subject.getSubjectId());
+            subjectDTO.setSubjectCode(subject.getSubjectCode());
+            subjectDTO.setSubjectName(subject.getSubjectName());
+            subjectDTO.setCredit(subject.getCredit());
+            subjectDTOs.add(subjectDTO);
+        }
+
+        return subjectDTOs;
     }
-    public Subject createSubject(Subject subject){
-        return subjectRepository.save(subject);
-    }
-    public Subject updateSubject(Long subject_id,Subject subject){
-        return subjectRepository.findById(subject_id)
-                .map(sub->{
-                    sub.setSubject_code(subject.getSubject_code());
-                    sub.setSubject_name(subject.getSubject_name());
-                    sub.setCredit(subject.getCredit());
-                    sub.setStudentScores(subject.getStudentScores());
-                    return subjectRepository.save(sub);
-                })
-                .orElseGet(()->{
-                    subject.setSubject_id(subject_id);
-                    return subjectRepository.save(subject);
-                });
-    }
-    public void deleteSubject(Long subject_id){
-        subjectRepository.deleteById(subject_id);
+
+    public SubjectDTO createSubject(SubjectDTO subjectDTO) {
+        Subject subject = new Subject();
+        subject.setSubjectCode(subjectDTO.getSubjectCode());
+        subject.setSubjectName(subjectDTO.getSubjectName());
+        subject.setCredit(subjectDTO.getCredit());
+
+        Subject savedSubject = subjectRepository.save(subject);
+
+        SubjectDTO savedSubjectDTO = new SubjectDTO();
+        savedSubjectDTO.setSubjectId(savedSubject.getSubjectId());
+        savedSubjectDTO.setSubjectCode(savedSubject.getSubjectCode());
+        savedSubjectDTO.setSubjectName(savedSubject.getSubjectName());
+        savedSubjectDTO.setCredit(savedSubject.getCredit());
+
+        return savedSubjectDTO;
     }
 }
